@@ -1,82 +1,82 @@
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %  Èİ»ıKalmanÂË²¨
-    %  ×´Ì¬·½³Ì£ºx(:,k+1) = F * x(:,k) +[sqrt(Q) * randn;0]; 
-    %  ¹Û²â·½³Ì£ºz(k+1) = atan(0.1 * x(1,k+1)) + sqrt(R) * randn; 
+    %  å®¹ç§¯Kalmanæ»¤æ³¢
+    %  çŠ¶æ€æ–¹ç¨‹ï¼šx(:,k+1) = F * x(:,k) +[sqrt(Q) * randn;0]; 
+    %  è§‚æµ‹æ–¹ç¨‹ï¼šz(k+1) = atan(0.1 * x(1,k+1)) + sqrt(R) * randn; 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     clc; clear all;close all;
     n=501;
-    tf = 500;                                     % Ä£Äâ³¤¶È 
+    tf = 500;                                     % æ¨¡æ‹Ÿé•¿åº¦ 
     x=zeros(2,n);
     z=zeros(1,n);
-    x(:,1) =[1;0.1];                              % ³õÊ¼×´Ì¬ 
+    x(:,1) =[1;0.1];                              % åˆå§‹çŠ¶æ€ 
     x_ckf=zeros(2,n);
-    % x_estimate(:,1) = [1;0.1];                  %×´Ì¬µÄ¹À¼Æ
+    % x_estimate(:,1) = [1;0.1];                  %çŠ¶æ€çš„ä¼°è®¡
     x_ckf(:,1)=[1;0.1];
-    % e_x_estimate = x_estimate(:,1);             %EKFµÄ³õÊ¼¹À¼Æ
+    % e_x_estimate = x_estimate(:,1);             %EKFçš„åˆå§‹ä¼°è®¡
     xhat=x_ckf(:,1);
     x_e_error=zeros(1,n);
     x_c_error=zeros(1,n);
     z_e_error=zeros(1,n);
     z_c_error=zeros(1,n);
-    Q = 0.0001;                                    % ¹ı³Ì×´Ì¬Ğ­·½²î 
-    R = 0.16;                                      % ²âÁ¿ÔëÉùĞ­·½²î 
-    P =[0.0099,0;0,0.0001];                        %³õÊ¼¹À¼Æ·½²î
+    Q = 0.0001;                                    % è¿‡ç¨‹çŠ¶æ€åæ–¹å·® 
+    R = 0.16;                                      % æµ‹é‡å™ªå£°åæ–¹å·® 
+    P =[0.0099,0;0,0.0001];                        %åˆå§‹ä¼°è®¡æ–¹å·®
     Pplus=P;
     F=[1,1;0,1];
     Gamma=[0.5;1];
     w=0.25;  
     kesi=sqrt(2)*[1,0,-1,0;0,1,0,-1];
     for k = 1 : tf 
-        % Ä£ÄâÏµÍ³ 
-       x(:,k+1) = F * x(:,k) + Gamma * sqrt(Q) * randn;      %×´Ì¬Öµ 
+        % æ¨¡æ‹Ÿç³»ç»Ÿ 
+       x(:,k+1) = F * x(:,k) + Gamma * sqrt(Q) * randn;      %çŠ¶æ€å€¼ 
        %x(:,k+1) = F * x(:,k) +[sqrt(Q) * randn;0]; 
-       z(k+1) = atan(0.1 * x(1,k+1)) + sqrt(R) * randn;      %¹Û²âÖµ
+       z(k+1) = atan(0.1 * x(1,k+1)) + sqrt(R) * randn;      %è§‚æµ‹å€¼
     end;
     for k = 1 : tf 
-        %Cubature¿¨¶ûÂüÂË²¨Æ÷
-        %%%%%£¨1£©ÇóĞ­·½²î¾ØÕóÆ½·½¸ù
+        %Cubatureå¡å°”æ›¼æ»¤æ³¢å™¨
+        %%%%%ï¼ˆ1ï¼‰æ±‚åæ–¹å·®çŸ©é˜µå¹³æ–¹æ ¹
         S=chol(Pplus,'lower');
-        %%%%%£¨2£©¼ÆËãÇóÈİ»ıµã
+        %%%%%ï¼ˆ2ï¼‰è®¡ç®—æ±‚å®¹ç§¯ç‚¹
         rjpoint(:,1)=S*kesi(:,1)+xhat;
         rjpoint(:,2)=S*kesi(:,2)+xhat;
         rjpoint(:,3)=S*kesi(:,3)+xhat;
         rjpoint(:,4)=S*kesi(:,4)+xhat;
-        %%%%%£¨3£©´«²¥ÇóÈİ»ıµã
-        Xminus(:,1)=F*rjpoint(:,1);                           %Èİ»ıµã¾­¹ı·ÇÏßĞÔº¯ÊıºóµÄÖµ
+        %%%%%ï¼ˆ3ï¼‰ä¼ æ’­æ±‚å®¹ç§¯ç‚¹
+        Xminus(:,1)=F*rjpoint(:,1);                           %å®¹ç§¯ç‚¹ç»è¿‡éçº¿æ€§å‡½æ•°åçš„å€¼
         Xminus(:,2)=F*rjpoint(:,2);
         Xminus(:,3)=F*rjpoint(:,3); 
         Xminus(:,4)=F*rjpoint(:,4); 
-        %%%%£¨4£©×´Ì¬Ô¤²â
+        %%%%ï¼ˆ4ï¼‰çŠ¶æ€é¢„æµ‹
         xminus=w*Xminus(:,1)+w*Xminus(:,2)+w*Xminus(:,3)+w*Xminus(:,4);
-        %%%%(5)×´Ì¬Ô¤²âĞ­·½²îÕó
+        %%%%(5)çŠ¶æ€é¢„æµ‹åæ–¹å·®é˜µ
         Pminus=w*(Xminus(:,1)*Xminus(:,1)'+Xminus(:,2)*Xminus(:,2)'+Xminus(:,3)*Xminus(:,3)'+Xminus(:,4)*Xminus(:,4)')-xminus*xminus'+Gamma * Q* Gamma';
        %Pminus=w*(Xminus(:,1)*Xminus(:,1)'+Xminus(:,2)*Xminus(:,2)'+Xminus(:,3)*Xminus(:,3)'+Xminus(:,4)*Xminus(:,4)')-xminus*xminus'+[Q,0;0,0]; 
-       %%%%¹Û²â¸üĞÂ
-        %%%%%£¨1£©¾ØÕó·Ö½â
+       %%%%è§‚æµ‹æ›´æ–°
+        %%%%%ï¼ˆ1ï¼‰çŸ©é˜µåˆ†è§£
         Sminus=chol(Pminus,'lower');
-        %%%%%£¨2£©¼ÆËãÇóÈİ»ıµã
+        %%%%%ï¼ˆ2ï¼‰è®¡ç®—æ±‚å®¹ç§¯ç‚¹
         rjpoint1(:,1)=Sminus*kesi(:,1)+xminus;
         rjpoint1(:,2)=Sminus*kesi(:,2)+xminus;
         rjpoint1(:,3)=Sminus*kesi(:,3)+xminus;
         rjpoint1(:,4)=Sminus*kesi(:,4)+xminus;
-        %%%%%£¨3£©´«²¥ÇóÈİ»ıµã
+        %%%%%ï¼ˆ3ï¼‰ä¼ æ’­æ±‚å®¹ç§¯ç‚¹
         Z(1)=atan(0.1*rjpoint1(1,1));
         Z(2)=atan(0.1*rjpoint1(1,2));
         Z(3)=atan(0.1*rjpoint1(1,3));
         Z(4)=atan(0.1*rjpoint1(1,4));
        % Z(:,4)=[atan(0.1*rjpoint1(1,4));0];
-        %%%%%%%£¨4£©¹Û²âÔ¤²â
+        %%%%%%%ï¼ˆ4ï¼‰è§‚æµ‹é¢„æµ‹
         zhat=w*(Z(1)+Z(2)+Z(3)+Z(4));
-        %%%%(5)¹Û²âÔ¤²âĞ­·½²îÕó
+        %%%%(5)è§‚æµ‹é¢„æµ‹åæ–¹å·®é˜µ
         %Pzminus=w*(Z(:,1)*Z(:,1)'+Z(:,2)*Z(:,2)'+Z(:,3)*Z(:,3)'+Z(:,4)*Z(:,4)')-zhat*zhat'+[R,0;0,Q];
         Pzminus=w*(Z(1)^2+Z(2)^2+Z(3)^2+Z(4)^2)-zhat^2+R;
-        %%%%(6)»¥Ğ­·½²îÕó
+        %%%%(6)äº’åæ–¹å·®é˜µ
         Pxzminus=w*(rjpoint1(:,1)*Z(1)+rjpoint1(:,2)*Z(2)+rjpoint1(:,3)*Z(3)+rjpoint1(:,4)*Z(4))-xminus*zhat;
-        %%%%(7)¼ÆËã¿¨¶ûÂüÔöÒæ
+        %%%%(7)è®¡ç®—å¡å°”æ›¼å¢ç›Š
         K=Pxzminus/Pzminus;
-        %%%%(8)×´Ì¬¸üĞÂ
+        %%%%(8)çŠ¶æ€æ›´æ–°
         xhat=xminus+K*(z(k+1)-zhat);
-        %%%%(9)×´Ì¬Ğ­·½²î¾ØÕó¸üĞÂ
+        %%%%(9)çŠ¶æ€åæ–¹å·®çŸ©é˜µæ›´æ–°
         Pplus=Pminus-K*Pzminus*K';
         
         x_ckf(:,k+1)=xhat;
@@ -84,4 +84,4 @@
         t = 0 : tf;
     figure;
     plot(t,x(1,:),'k.',t,x_ckf(1,:),'g');
-    legend('ÕæÊµÖµ','CKF¹À¼ÆÖµ');
+    legend('çœŸå®å€¼','CKFä¼°è®¡å€¼');
